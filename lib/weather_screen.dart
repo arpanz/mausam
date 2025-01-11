@@ -138,17 +138,41 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 const SizedBox(
                   height: 8,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (int i = 1; i <= 5; i++)
-                        HourlyForecast(
-                          time: "00:00",
-                          temp: "80F",
-                          icon: Icons.cloud,
-                        ),
-                    ],
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: Row(
+                //     children: [
+                //       for (int i = 1; i <= 5; i++)
+                //         //for what is doing
+                //         HourlyForecast(
+                //           time: data['list'][i + 1]['dt'].toString(),
+                //           icon: data['lsit'][i + 1]['weather'][0]['main'] ==
+                //                       'Clouds' ||
+                //                   data['lsit'][i + 1]['weather'][0]['main'] ==
+                //                       'Rain'
+                //               ? Icons.cloud
+                //               : Icons.sunny,
+                //           temp: data['list'][i + 1]['main']['temp'].toString(),
+                //         ),
+                //     ],
+                //   ),
+                // ),
+                SizedBox(
+                  height: 140,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      final hourlyForecast = data['list'][index + 1];
+                      final hourlyIcon =
+                          data['list'][index + 1]['weather'][0]['main'];
+                      return HourlyForecast(
+                          time: hourlyForecast['dt'].toString(),
+                          temp: hourlyForecast['main']['temp'].toString(),
+                          icon: hourlyIcon == "Clouds" || hourlyIcon == "Rain"
+                              ? Icons.cloud
+                              : Icons.sunny);
+                    },
                   ),
                 ),
                 //additional info cards
