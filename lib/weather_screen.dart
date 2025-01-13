@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:weather/additional_item.dart';
 import 'package:weather/hourly_forecast_item.dart';
 import 'package:http/http.dart' as http;
@@ -19,38 +17,26 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
-      String cityName = "London";
-      // Add timeout to the HTTP request
-      final res = await http
-          .get(
+      String cityName = "Bhubaneswar";
+      final res = await http.get(
         Uri.parse(
-          'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,uk&APPID=$openweatherApiKey',
-        ),
-      )
-          .timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          throw 'Connection timeout. Please check your internet connection.';
-        },
+            'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,ind&APPID=$openweatherApiKey'),
       );
-
-      if (res.statusCode != 200) {
-        throw 'Server returned status code ${res.statusCode}';
-      }
-
       final data = jsonDecode(res.body);
 
       if (data['cod'] != "200") {
-        throw 'API Error: ${data['message'] ?? 'Unknown error occurred'}';
+        throw 'An error occurred :)';
       }
 
       return data;
     } catch (e) {
-      if (e is SocketException) {
-        throw 'Network error: Please check your internet connection';
-      }
       throw e.toString();
     }
+  }
+
+  String formatHour(String dateTime) {
+    final DateTime parsedDate = DateTime.parse(dateTime);
+    return "${parsedDate.hour % 12 == 0 ? 12 : parsedDate.hour % 12} ${parsedDate.hour >= 12 ? 'PM' : 'AM'}";
   }
 
   @override
@@ -87,7 +73,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           final currentData = data['list'][0];
 
-          final currentTemp = currentData['main']['temp'] - 273.15;
+          final currentTempCelsius =
+              (currentData['main']['temp'] - 273.15).toStringAsFixed(1);
 
           final currentSky = currentData['weather'][0]['main'];
 
@@ -102,7 +89,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //main card
+                // main card
                 SizedBox(
                   width: double.infinity,
                   child: Card(
@@ -117,7 +104,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         child: Column(
                           children: [
                             Text(
-                              "${currentTemp.toStringAsFixed(2)} °C",
+                              "$currentTempCelsius °C",
                               style: const TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -145,7 +132,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     ),
                   ),
                 ),
-                //weather cards daily/hourly
+                // weather cards daily/hourly
                 const SizedBox(height: 20),
                 const Text(
                   "Hourly Forecast",
@@ -157,45 +144,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 const SizedBox(
                   height: 8,
                 ),
-                // SingleChildScrollView(
-                //   scrollDirection: Axis.horizontal,
-                //   child: Row(
-                //     children: [
-                //       for (int i = 1; i <= 5; i++)
-                //         //for what is doing
-                //         HourlyForecast(
-                //           time: data['list'][i + 1]['dt'].toString(),
-                //           icon: data['list'][i + 1]['weather'][0]['main'] ==
-                //                       'Clouds' ||
-                //                   data['list'][i + 1]['weather'][0]['main'] ==
-                //                       'Rain'
-                //               ? Icons.cloud
-                //               : Icons.sunny,
-                //           temp: data['list'][i + 1]['main']['temp'].toString(),
-                //         ),
-                //     ],
-                //   ),
-                // ),
                 SizedBox(
-                  height: 120,
+                  height: 140,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 6,
                     itemBuilder: (context, index) {
                       final hourlyForecast = data['list'][index + 1];
                       final hourlyIcon = hourlyForecast['weather'][0]['main'];
-                      final time = DateTime.parse(hourlyForecast['dt_txt']);
+                      final hourlyTime = formatHour(hourlyForecast['dt_txt']);
                       return HourlyForecast(
-                          time: DateFormat.j().format(time),
-                          temp: (hourlyForecast['main']['temp'] - 273.15)
-                              .toStringAsFixed(2),
-                          icon: hourlyIcon == "Clouds" || hourlyIcon == "Rain"
-                              ? Icons.cloud
-                              : Icons.sunny);
+                        time: hourlyTime,
+                        temp: (hourlyForecast['main']['temp'] - 273.15)
+                            .toStringAsFixed(1),
+                        icon: hourlyIcon == "Clouds" || hourlyIcon == "Rain"
+                            ? Icons.cloud
+                            : Icons.sunny,
+                      );
                     },
                   ),
                 ),
-                //additional info cards
+                // additional info cards
                 const SizedBox(height: 20),
                 const Text(
                   "Additional Information",
