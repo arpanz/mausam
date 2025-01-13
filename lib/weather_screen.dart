@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weather/additional_item.dart';
 import 'package:weather/hourly_forecast_item.dart';
 import 'package:http/http.dart' as http;
@@ -17,19 +19,36 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
-      String cityName = "Varanasi";
-      final res = await http.get(
+      String cityName = "London";
+      // Add timeout to the HTTP request
+      final res = await http
+          .get(
         Uri.parse(
-            'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,ind&APPID=$openweatherApiKey'),
+          'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,uk&APPID=$openweatherApiKey',
+        ),
+      )
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw 'Connection timeout. Please check your internet connection.';
+        },
       );
+
+      if (res.statusCode != 200) {
+        throw 'Server returned status code ${res.statusCode}';
+      }
+
       final data = jsonDecode(res.body);
 
       if (data['cod'] != "200") {
-        throw 'an error occured :)';
+        throw 'API Error: ${data['message'] ?? 'Unknown error occurred'}';
       }
 
-      return (data);
+      return data;
     } catch (e) {
+      if (e is SocketException) {
+        throw 'Network error: Please check your internet connection';
+      }
       throw e.toString();
     }
   }
@@ -48,7 +67,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              print("refresh");
+              setState(() {});
             },
             icon: const Icon(Icons.refresh),
           )
@@ -68,7 +87,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           final currentData = data['list'][0];
 
-          final CurrentTemp = currentData['main']['temp'];
+          final currentTemp = currentData['main']['temp'] - 273.15;
 
           final currentSky = currentData['weather'][0]['main'];
 
@@ -98,7 +117,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         child: Column(
                           children: [
                             Text(
-                              "$CurrentTemp K",
+                              "${currentTemp.toStringAsFixed(2)} °C",
                               style: const TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -146,9 +165,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 //         //for what is doing
                 //         HourlyForecast(
                 //           time: data['list'][i + 1]['dt'].toString(),
-                //           icon: data['lsit'][i + 1]['weather'][0]['main'] ==
+                //           icon: data['list'][i + 1]['weather'][0]['main'] ==
                 //                       'Clouds' ||
-                //                   data['lsit'][i + 1]['weather'][0]['main'] ==
+                //                   data['list'][i + 1]['weather'][0]['main'] ==
                 //                       'Rain'
                 //               ? Icons.cloud
                 //               : Icons.sunny,
@@ -158,17 +177,18 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 //   ),
                 // ),
                 SizedBox(
-                  height: 140,
+                  height: 120,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 6,
                     itemBuilder: (context, index) {
                       final hourlyForecast = data['list'][index + 1];
-                      final hourlyIcon =
-                          data['list'][index + 1]['weather'][0]['main'];
+                      final hourlyIcon = hourlyForecast['weather'][0]['main'];
+                      final time = DateTime.parse(hourlyForecast['dt_txt']);
                       return HourlyForecast(
-                          time: hourlyForecast['dt'].toString(),
-                          temp: hourlyForecast['main']['temp'].toString(),
+                          time: DateFormat.j().format(time),
+                          temp: (hourlyForecast['main']['temp'] - 273.15)
+                              .toStringAsFixed(2),
                           icon: hourlyIcon == "Clouds" || hourlyIcon == "Rain"
                               ? Icons.cloud
                               : Icons.sunny);
