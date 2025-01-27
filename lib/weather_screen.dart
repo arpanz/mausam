@@ -17,7 +17,7 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
-      String cityName = "Varanasi";
+      String cityName = "Bhubaneswar";
       final res = await http.get(
         Uri.parse(
             'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,ind&APPID=$openweatherApiKey'),
@@ -45,7 +45,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Weather Pro',
+          'Weather Pro - Bhubaneswar',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
