@@ -15,15 +15,6 @@ class AdditionalInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Additional Info',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            )),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(14.0),
         child: Consumer<WeatherProvider>(
@@ -40,6 +31,7 @@ class AdditionalInfoScreen extends StatelessWidget {
             final humidityData = currentData['main']['humidity'].toString();
             final windSpeed = currentData['wind']['speed'].toString();
             final currentPressure = currentData['main']['pressure'].toString();
+            final uvIndex = data['list'][0]['main']['uvi'].toString();
             final sunrise = formatTime(DateTime.fromMillisecondsSinceEpoch(
                     data['city']['sunrise'] * 1000)
                 .toLocal()
@@ -48,7 +40,6 @@ class AdditionalInfoScreen extends StatelessWidget {
                     data['city']['sunset'] * 1000)
                 .toLocal()
                 .toString());
-            final uvIndex = data['list'][0]['main']['uvi'].toString();
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,

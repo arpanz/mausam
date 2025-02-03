@@ -17,10 +17,7 @@ class HourlyForecast extends StatelessWidget {
       elevation: 8,
       child: Container(
         width: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.blue[50],
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [

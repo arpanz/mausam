@@ -33,41 +33,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
     });
   }
 
-  void _showCitySearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        String cityName = "";
-        return AlertDialog(
-          title: const Text("Search City"),
-          content: TextField(
-            onChanged: (value) {
-              cityName = value;
-            },
-            decoration: const InputDecoration(hintText: "Enter city name"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _cityName = cityName;
-                });
-                Provider.of<WeatherProvider>(context, listen: false)
-                    .fetchWeather(cityName);
-                Navigator.of(context).pop();
-              },
-              child: const Text("Search"),
-            ),
-          ],
-        );
-      },
-    );
+  void _searchCity(String cityName) {
+    setState(() {
+      _cityName = cityName;
+    });
+    Provider.of<WeatherProvider>(context, listen: false).fetchWeather(cityName);
   }
 
   @override
@@ -83,10 +53,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          'Weather Pro - $_cityName',
+          '$_cityName',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
         actions: [
@@ -104,7 +73,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
             icon: const Icon(Icons.brightness_6),
           ),
           IconButton(
-            onPressed: _showCitySearchDialog,
+            onPressed: () async {
+              final cityName = await showDialog<String>(
+                context: context,
+                builder: (context) => _CitySearchDialog(),
+              );
+              if (cityName != null) {
+                _searchCity(cityName);
+              }
+            },
             icon: const Icon(Icons.search),
           ),
         ],
@@ -113,19 +90,46 @@ class _WeatherScreenState extends State<WeatherScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.blueAccent),
+            icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.info, color: Colors.blueAccent),
+            icon: Icon(Icons.info),
             label: 'Additional Info',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
+    );
+  }
+}
+
+class _CitySearchDialog extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Search City'),
+      content: TextField(
+        controller: _controller,
+        decoration: const InputDecoration(hintText: 'Enter city name'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(_controller.text);
+          },
+          child: const Text('Search'),
+        ),
+      ],
     );
   }
 }
@@ -140,6 +144,10 @@ class WeatherHomePage extends StatelessWidget {
     final DateTime parsedDate = DateTime.parse(dateTime);
     const List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return days[parsedDate.weekday - 1];
+  }
+
+  String formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
   }
 
   @override
@@ -158,12 +166,8 @@ class WeatherHomePage extends StatelessWidget {
         final currentTempCelsius =
             (currentData['main']['temp'] - 273.15).toStringAsFixed(1);
         final currentSky = currentData['weather'][0]['main'];
-        final currentPressure = currentData['main']['pressure'];
-        final windSpeed = currentData['wind']['speed'];
-        final humidityData = currentData['main']['humidity'];
-        final today = DateTime.now();
-        final formattedDate = "${today.day}/${today.month}/${today.year}";
-        final formattedDay = formatDay(today.toString());
+        final today = DateTime.now().weekday;
+        final todayDate = formatDate(DateTime.now());
 
         return Padding(
           padding: const EdgeInsets.all(14.0),
@@ -179,7 +183,7 @@ class WeatherHomePage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -189,6 +193,16 @@ class WeatherHomePage extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            todayDate,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(
@@ -206,14 +220,7 @@ class WeatherHomePage extends StatelessWidget {
                           Text(
                             currentSky,
                             style: const TextStyle(fontSize: 20),
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "$formattedDay, $formattedDate",
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                          )
                         ],
                       ),
                     ),
@@ -277,7 +284,7 @@ class WeatherHomePage extends StatelessWidget {
                     final dailyTemp = (dailyForecast['main']['temp'] - 273.15)
                         .toStringAsFixed(1);
                     final dailyDay = formatDay(dailyForecast['dt_txt']);
-                    final isToday = (index + 1) == today.weekday;
+                    final isToday = (index + 1) == today;
                     return Card(
                       elevation: 8,
                       color: isToday ? Colors.blueAccent : Colors.grey.shade900,
