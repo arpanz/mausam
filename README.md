@@ -11,9 +11,7 @@ A Flutter-based weather application that provides current weather information an
 
 ## Screenshots
 
-![Home Screen](assets/1.png)
-![Dark Mode](assets/2.png)
-![Additional Info](assets/3.png)
+<img src="assets/1.png" alt="Home Screen" width="300"/>  <img src="assets/2.png" alt="Dark Mode" width="300"/> <img src="assets/3.png" alt="Additional Info" width="300"/>
 
 ## Getting Started
 
