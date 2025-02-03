@@ -21,7 +21,7 @@ class AdditionalInfoScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
+              color: Colors.white,
             )),
       ),
       body: Padding(

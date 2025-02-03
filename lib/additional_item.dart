@@ -18,11 +18,15 @@ class AdditionalInfoItem extends StatelessWidget {
         Icon(
           icon,
           size: 32,
+          color: Colors.blueAccent,
         ),
         const SizedBox(
           height: 10,
         ),
-        Text(label),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.black87),
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -31,6 +35,7 @@ class AdditionalInfoItem extends StatelessWidget {
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
       ],

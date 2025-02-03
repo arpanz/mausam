@@ -12,13 +12,12 @@ class WeatherProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  Future<void> fetchWeather() async {
+  Future<void> fetchWeather([String cityName = "Bhubaneswar"]) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      String cityName = "Bhubaneswar";
       final res = await http.get(
         Uri.parse(
             'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,ind&APPID=$openweatherApiKey'),
