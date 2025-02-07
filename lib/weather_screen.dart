@@ -319,9 +319,6 @@ class WeatherHomePage extends StatelessWidget {
                     final isToday = (index + 1) == today;
                     return Card(
                       elevation: 8,
-                      color: isToday
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surface,
                       child: Container(
                         width: 100,
                         decoration: BoxDecoration(
@@ -333,11 +330,8 @@ class WeatherHomePage extends StatelessWidget {
                               dailyDay,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(
                               height: 8,
@@ -346,18 +340,13 @@ class WeatherHomePage extends StatelessWidget {
                               dailyIcon == "Clouds" || dailyIcon == "Rain"
                                   ? Icons.cloud
                                   : Icons.sunny,
-                              size: 30,
-                              color: Colors.white,
                             ),
                             const SizedBox(
                               height: 8,
                             ),
                             Text(
                               "$dailyTemp °C",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
+                              style: const TextStyle(),
                             ),
                           ],
                         ),
