@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:weather/additional_item.dart';
@@ -105,28 +106,59 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 }
 
-class _CitySearchDialog extends StatelessWidget {
+class _CitySearchDialog extends StatefulWidget {
+  @override
+  _CitySearchDialogState createState() => _CitySearchDialogState();
+}
+
+class _CitySearchDialogState extends State<_CitySearchDialog> {
   final TextEditingController _controller = TextEditingController();
+  List<String> _suggestions = [];
+
+  Future<void> _fetchCitySuggestions(String query) async {
+    if (query.isEmpty) {
+      setState(() => _suggestions = []);
+      return;
+    }
+
+    final response = await http.get(Uri.parse(
+        'http://api.openweathermap.org/geo/1.0/direct?q=$query&limit=5&appid=$openweatherApiKey'));
+
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      setState(() {
+        _suggestions =
+            data.map<String>((city) => city['name'] as String).toList();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Search City'),
-      content: TextField(
-        controller: _controller,
-        decoration: const InputDecoration(hintText: 'Enter city name'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            onChanged: _fetchCitySuggestions,
+            decoration: const InputDecoration(hintText: 'Enter city name'),
+          ),
+          SizedBox(height: 8),
+          ..._suggestions.map((city) => ListTile(
+                title: Text(city),
+                onTap: () => Navigator.of(context).pop(city),
+              ))
+        ],
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(_controller.text);
-          },
+          onPressed: () => Navigator.of(context).pop(_controller.text),
           child: const Text('Search'),
         ),
       ],
@@ -276,10 +308,10 @@ class WeatherHomePage extends StatelessWidget {
                 height: 140,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 7,
+                  itemCount: min(7, data['list'].length ~/ 8),
                   itemBuilder: (context, index) {
-                    if (index * 8 >= data['list'].length) return Container();
-                    final dailyForecast = data['list'][index * 8];
+                    final forecastIndex = index * (data['list'].length ~/ 7);
+                    final dailyForecast = data['list'][forecastIndex];
                     final dailyIcon = dailyForecast['weather'][0]['main'];
                     final dailyTemp = (dailyForecast['main']['temp'] - 273.15)
                         .toStringAsFixed(1);
@@ -287,7 +319,9 @@ class WeatherHomePage extends StatelessWidget {
                     final isToday = (index + 1) == today;
                     return Card(
                       elevation: 8,
-                      color: isToday ? Colors.blueAccent : Colors.grey.shade900,
+                      color: isToday
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.surface,
                       child: Container(
                         width: 100,
                         decoration: BoxDecoration(

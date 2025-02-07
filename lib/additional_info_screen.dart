@@ -20,10 +20,10 @@ class AdditionalInfoScreen extends StatelessWidget {
         child: Consumer<WeatherProvider>(
           builder: (context, weatherProvider, child) {
             if (weatherProvider.isLoading) {
-              return const Center(child: CircularProgressIndicator.adaptive());
+              return const Center(child: CircularProgressIndicator());
             }
             if (weatherProvider.errorMessage.isNotEmpty) {
-              return Text(weatherProvider.errorMessage);
+              return Center(child: Text(weatherProvider.errorMessage));
             }
 
             final data = weatherProvider.weatherData!;
@@ -44,17 +44,15 @@ class AdditionalInfoScreen extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Additional Information",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -75,20 +73,16 @@ class AdditionalInfoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
+                const SizedBox(height: 20),
+                Text(
                   "Sunrise & Sunset",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -104,20 +98,16 @@ class AdditionalInfoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const Text(
+                const SizedBox(height: 20),
+                Text(
                   "UV Index",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
                 Center(
                   child: AdditionalInfoItem(
                     icon: Icons.wb_sunny,
