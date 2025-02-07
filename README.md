@@ -25,7 +25,7 @@ A Flutter-based weather application that provides current weather information an
 1. Clone the repository:
     ```sh
     git clone https://github.com/arpanz/weather.git
-    cd weather-app
+    cd weather
     ```
 
 2. Install dependencies:
