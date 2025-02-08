@@ -5,7 +5,7 @@ A Flutter-based weather application that provides current weather information an
 ## Features
 
 - **Current Weather**: Displays the current temperature, weather conditions, and other relevant information for the selected city.
-- **7-Day Forecast**: Provides a 7-day weather forecast with daily temperatures and conditions.
+- **5-Day Forecast**: Provides a 5-day weather forecast with daily temperatures and conditions.
 - **City Selection**: Allows users to select a city from a list fetched from an API.
 - **Additional Information**: Displays additional weather-related information such as humidity and pressure.
 
