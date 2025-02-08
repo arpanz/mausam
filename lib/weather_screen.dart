@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:ui';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:weather/additional_item.dart';
@@ -11,6 +10,7 @@ import 'package:weather/additional_info_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:weather/weather_provider.dart';
 import 'package:weather/theme_provider.dart';
+import 'package:weather/seven_day_forecast.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -198,7 +198,6 @@ class WeatherHomePage extends StatelessWidget {
         final currentTempCelsius =
             (currentData['main']['temp'] - 273.15).toStringAsFixed(1);
         final currentSky = currentData['weather'][0]['main'];
-        final today = DateTime.now().weekday;
         final todayDate = formatDate(DateTime.now());
 
         return Padding(
@@ -292,69 +291,8 @@ class WeatherHomePage extends StatelessWidget {
                   },
                 ),
               ),
-              // 7 day forecast
               const SizedBox(height: 20),
-              const Text(
-                "7 Day Forecast",
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              SizedBox(
-                height: 140,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: min(7, data['list'].length ~/ 8),
-                  itemBuilder: (context, index) {
-                    final forecastIndex = index * (data['list'].length ~/ 7);
-                    final dailyForecast = data['list'][forecastIndex];
-                    final dailyIcon = dailyForecast['weather'][0]['main'];
-                    final dailyTemp = (dailyForecast['main']['temp'] - 273.15)
-                        .toStringAsFixed(1);
-                    final dailyDay = formatDay(dailyForecast['dt_txt']);
-                    final isToday = (index + 1) == today;
-                    return Card(
-                      elevation: 8,
-                      child: Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              dailyDay,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Icon(
-                              dailyIcon == "Clouds" || dailyIcon == "Rain"
-                                  ? Icons.cloud
-                                  : Icons.sunny,
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Text(
-                              "$dailyTemp °C",
-                              style: const TextStyle(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              const SevenDayForecast(),
             ],
           ),
         );
